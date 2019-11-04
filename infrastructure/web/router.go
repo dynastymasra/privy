@@ -17,7 +17,7 @@ import (
 	"github.com/urfave/negroni"
 )
 
-func Router(db *gorm.DB, service string) *mux.Router {
+func Router(db *gorm.DB, service ServiceInstance) *mux.Router {
 	router := mux.NewRouter().StrictSlash(true).UseEncodedPath()
 	subRouter := router.PathPrefix("/v1/").Subrouter().UseEncodedPath()
 	commonHandlers := negroni.New(

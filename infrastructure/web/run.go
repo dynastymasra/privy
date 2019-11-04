@@ -3,6 +3,8 @@ package web
 import (
 	"net/http"
 
+	"github.com/dynastymasra/privy/product"
+
 	"github.com/jinzhu/gorm"
 
 	"github.com/dynastymasra/privy/config"
@@ -11,10 +13,14 @@ import (
 	"gopkg.in/tylerb/graceful.v1"
 )
 
-func Run(server *graceful.Server, db *gorm.DB, a string) {
+type ServiceInstance struct {
+	Product product.Service
+}
+
+func Run(server *graceful.Server, db *gorm.DB, service ServiceInstance) {
 	logrus.Infoln("Start run web application")
 
-	muxRouter := Router(db, a)
+	muxRouter := Router(db, service)
 
 	server.Server = &http.Server{
 		Addr: config.ServerAddress(),

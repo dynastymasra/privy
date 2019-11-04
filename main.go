@@ -1,10 +1,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/dynastymasra/privy/domain"
+
+	"github.com/dynastymasra/privy/product"
 
 	"github.com/dynastymasra/privy/infrastructure/web"
 
@@ -14,6 +19,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/dynastymasra/privy/config"
+	"github.com/icrowley/fake"
 	"github.com/urfave/cli"
 	"gopkg.in/tylerb/graceful.v1"
 )
@@ -33,6 +39,9 @@ func main() {
 		logrus.WithError(err).Fatalln("Unable to open connection to postgres")
 	}
 
+	productRepository := product.NewRepository(postgresDB)
+	productService := product.NewService(productRepository)
+
 	clientApp := cli.NewApp()
 	clientApp.Name = config.ServiceName
 	clientApp.Version = config.Version
@@ -41,7 +50,7 @@ func main() {
 		server := &graceful.Server{
 			Timeout: 0,
 		}
-		go web.Run(server, postgresDB, "productService")
+		go web.Run(server, postgresDB, web.ServiceInstance{Product: productService})
 		select {
 		case sig := <-stop:
 			<-server.StopChan()
@@ -63,20 +72,14 @@ func main() {
 			Name:        "migrate:run",
 			Description: "Running Migration",
 			Action: func(c *cli.Context) error {
-				if err := console.RunDatabaseMigrations(postgresDB.DB()); err != nil {
-					os.Exit(1)
-				}
-				return nil
+				return console.RunDatabaseMigrations(postgresDB.DB())
 			},
 		},
 		{
 			Name:        "migrate:rollback",
 			Description: "Rollback Migration",
 			Action: func(c *cli.Context) error {
-				if err := console.RollbackLatestMigration(postgresDB.DB()); err != nil {
-					os.Exit(1)
-				}
-				return nil
+				return console.RollbackLatestMigration(postgresDB.DB())
 			},
 		},
 		{
@@ -84,6 +87,19 @@ func main() {
 			Description: "Create up and down migration files with timestamp",
 			Action: func(c *cli.Context) error {
 				return console.CreateMigrationFiles(c.Args().Get(0))
+			},
+		},
+		{
+			Name:        "migrate:seed",
+			Description: "Create up and down migration files with timestamp",
+			Action: func(c *cli.Context) error {
+				return productRepository.Create(context.Background(), domain.Product{
+					Name:        fake.ProductName(),
+					Description: fake.Paragraph(),
+					Enable:      true,
+					Images:      []domain.Image{{ID: 1}},
+					Categories:  []domain.Category{{ID: 1}},
+				})
 			},
 		},
 	}
