@@ -8,8 +8,8 @@ import (
 
 	"github.com/jinzhu/gorm"
 
-	"github.com/dynastymasra/mujib/config"
-	"github.com/dynastymasra/mujib/infrastructure/database/postgres"
+	"github.com/dynastymasra/privy/config"
+	"github.com/dynastymasra/privy/infrastructure/database/postgres"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )

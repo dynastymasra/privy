@@ -6,6 +6,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/dynastymasra/privy/infrastructure/web"
+
 	"github.com/dynastymasra/privy/console"
 	"github.com/dynastymasra/privy/infrastructure/database/postgres"
 
@@ -39,7 +41,7 @@ func main() {
 		server := &graceful.Server{
 			Timeout: 0,
 		}
-
+		go web.Run(server, postgresDB, "productService")
 		select {
 		case sig := <-stop:
 			<-server.StopChan()

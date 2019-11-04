@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dynastymasra/mujib/config"
+	"github.com/dynastymasra/privy/config"
 	"github.com/golang-migrate/migrate"
 	"github.com/golang-migrate/migrate/database/postgres"
 	_ "github.com/golang-migrate/migrate/source/file"
