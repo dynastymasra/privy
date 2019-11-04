@@ -15,7 +15,7 @@ func (Image) TableName() string {
 }
 
 type ImageRepository interface {
-	Save(context.Context, Image) error
+	Create(context.Context, Image) (*Image, error)
 	FindByID(context.Context, int) (*Image, error)
 	Fetch(context.Context, int, int) ([]Image, error)
 	Update(context.Context, Image) error

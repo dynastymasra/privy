@@ -7,6 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/dynastymasra/privy/image"
+
 	"github.com/dynastymasra/privy/category"
 
 	"github.com/dynastymasra/privy/domain"
@@ -47,6 +49,9 @@ func main() {
 	categoryRepository := category.NewRepository(postgresDB)
 	categoryService := category.NewService(categoryRepository)
 
+	imageRepository := image.NewRepository(postgresDB)
+	imageService := image.NewService(imageRepository)
+
 	clientApp := cli.NewApp()
 	clientApp.Name = config.ServiceName
 	clientApp.Version = config.Version
@@ -58,6 +63,7 @@ func main() {
 		go web.Run(server, postgresDB, web.ServiceInstance{
 			Product:  productService,
 			Category: categoryService,
+			Image:    imageService,
 		})
 		select {
 		case sig := <-stop:

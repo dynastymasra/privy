@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/dynastymasra/privy/delivery/http/handler/image"
+
 	"github.com/dynastymasra/privy/delivery/http/handler/category"
 
 	"github.com/dynastymasra/privy/delivery/http/handler/product"
@@ -95,6 +97,32 @@ func Router(db *gorm.DB, service ServiceInstance) *mux.Router {
 	subRouter.Handle("/categories/{category_id}", commonHandlers.With(
 		middleware.HTTPStatLogger(),
 		negroni.WrapFunc(category.DeleteHandler(service.Category)),
+	)).Methods(http.MethodDelete)
+
+	// category group
+	subRouter.Handle("/images", commonHandlers.With(
+		middleware.HTTPStatLogger(),
+		negroni.WrapFunc(image.CreateHandler(service.Image)),
+	)).Methods(http.MethodPost)
+
+	subRouter.Handle("/images/{image_id}", commonHandlers.With(
+		middleware.HTTPStatLogger(),
+		negroni.WrapFunc(image.FindByIDHandler(service.Image)),
+	)).Methods(http.MethodGet)
+
+	subRouter.Handle("/images", commonHandlers.With(
+		middleware.HTTPStatLogger(),
+		negroni.WrapFunc(image.FindAllHandler(service.Image)),
+	)).Methods(http.MethodGet)
+
+	subRouter.Handle("/images/{image_id}", commonHandlers.With(
+		middleware.HTTPStatLogger(),
+		negroni.WrapFunc(image.UpdateHandler(service.Image)),
+	)).Methods(http.MethodPut)
+
+	subRouter.Handle("/images/{image_id}", commonHandlers.With(
+		middleware.HTTPStatLogger(),
+		negroni.WrapFunc(image.DeleteHandler(service.Image)),
 	)).Methods(http.MethodDelete)
 
 	return subRouter

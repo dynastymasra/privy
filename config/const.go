@@ -8,6 +8,7 @@ const (
 	// Table Name
 	TableNameProduct          = "products"
 	TableNameCategory         = "categories"
+	TableNameImage            = "images"
 	TableNameProductImages    = "product_images"
 	TableNameCategoryProducts = "category_products"
 

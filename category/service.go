@@ -70,7 +70,7 @@ func (s Service) Update(ctx context.Context, id int, category domain.Category) (
 		"id":             id,
 	})
 
-	prod, err := s.Repository.FindByID(ctx, id)
+	cat, err := s.Repository.FindByID(ctx, id)
 	if err != nil {
 		log.WithError(err).Errorln("Failed get category by id")
 		return nil, err
@@ -78,7 +78,7 @@ func (s Service) Update(ctx context.Context, id int, category domain.Category) (
 
 	category.ID = id
 	if err := s.Repository.Update(ctx, category); err != nil {
-		log.WithField("before", prod).WithError(err).Errorln("Failed update category")
+		log.WithField("before", cat).WithError(err).Errorln("Failed update category")
 		return nil, err
 	}
 
