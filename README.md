@@ -10,7 +10,7 @@ Simple Golang CRUD service with Postgres
 
 This project try to implement [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) 
 and the Apps architecture can use [Kong](https://konghq.com/kong/) for API Gateway and can use [Kong Authentication](https://docs.konghq.com/hub/)
-for authentication mechanism. Right now this service only use server key to access the endpoints
+for authentication mechanism.
 
 ## Libraries
 
