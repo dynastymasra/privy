@@ -13,7 +13,7 @@ type MockProductRepository struct {
 
 func (m *MockProductRepository) Create(ctx context.Context, product domain.Product) (*domain.Product, error) {
 	args := m.Called(ctx)
-	return args.Get(0).(*domain.Product), args.Error(0)
+	return args.Get(0).(*domain.Product), args.Error(1)
 }
 
 func (m *MockProductRepository) FindByID(ctx context.Context, id int) (*domain.Product, error) {
@@ -22,7 +22,7 @@ func (m *MockProductRepository) FindByID(ctx context.Context, id int) (*domain.P
 }
 
 func (m *MockProductRepository) Fetch(ctx context.Context, offset, limit int) ([]domain.Product, error) {
-	args := m.Called(ctx)
+	args := m.Called(ctx, offset, limit)
 	return args.Get(0).([]domain.Product), args.Error(1)
 }
 
