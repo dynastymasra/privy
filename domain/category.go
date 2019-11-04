@@ -9,6 +9,11 @@ type Category struct {
 	Products []Product `json:"products,omitempty" gorm:"many2many:category_products" validate:"-"`
 }
 
+type CategoryProduct struct {
+	CategoryID int `gorm:"column:category_id"`
+	ProductID  int `gorm:"column:product_id"`
+}
+
 func (Category) TableName() string {
 	return "categories"
 }

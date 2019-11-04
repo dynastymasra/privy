@@ -29,7 +29,13 @@ func (s Service) Create(ctx context.Context, product domain.Product) (*domain.Pr
 		return nil, err
 	}
 
-	return res, nil
+	result, err := s.Repository.FindByID(ctx, res.ID)
+	if err != nil {
+		log.WithError(err).Errorln("Failed get product by id")
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (s Service) FindByID(ctx context.Context, id int) (*domain.Product, error) {
@@ -82,7 +88,13 @@ func (s Service) Update(ctx context.Context, id int, product domain.Product) (*d
 		return nil, err
 	}
 
-	return &product, nil
+	result, err := s.Repository.FindByID(ctx, id)
+	if err != nil {
+		log.WithError(err).Errorln("Failed get product by id")
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (s Service) Delete(ctx context.Context, id int) error {

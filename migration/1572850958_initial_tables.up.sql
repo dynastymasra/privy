@@ -29,12 +29,16 @@ CREATE TABLE IF NOT EXISTS images (
 
 CREATE TABLE IF NOT EXISTS category_products (
     product_id bigint  NOT NULL,
-    category_id bigint NOT NULL
+    category_id bigint NOT NULL,
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE cascade ON UPDATE cascade,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE cascade ON UPDATE cascade
 );
 
 CREATE TABLE IF NOT EXISTS product_images (
     product_id bigint  NOT NULL,
-    image_id bigint NOT NULL
+    image_id bigint NOT NULL,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE cascade ON UPDATE cascade,
+    FOREIGN KEY (image_id) REFERENCES images(id) ON DELETE cascade ON UPDATE cascade
 );
 
 CREATE INDEX IF NOT EXISTS category_products_product_id_idx ON category_products (product_id);

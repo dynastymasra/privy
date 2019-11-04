@@ -111,8 +111,8 @@ func main() {
 					Name:        fake.ProductName(),
 					Description: fake.Paragraph(),
 					Enable:      true,
-					Images:      []domain.Image{{ID: 1, Name: fake.ProductName(), File: fake.Paragraphs(), Enable: true}},
-					Categories:  []domain.Category{{ID: 1, Name: fake.ProductName(), Enable: true}},
+					Images:      []domain.Image{{Name: fake.ProductName(), File: fake.Paragraphs(), Enable: true}},
+					Categories:  []domain.Category{{Name: fake.ProductName(), Enable: true}},
 				})
 
 				return err

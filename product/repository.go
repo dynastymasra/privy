@@ -7,6 +7,7 @@ import (
 
 	"github.com/dynastymasra/privy/domain"
 	"github.com/jinzhu/gorm"
+	gormbulk "github.com/t-tiger/gorm-bulk-insert"
 )
 
 type Repository struct {
@@ -18,9 +19,40 @@ func NewRepository(db *gorm.DB) *Repository {
 }
 
 func (r *Repository) Create(ctx context.Context, product domain.Product) (*domain.Product, error) {
-	if err := r.db.Omit("created_at").Table(config.TableNameProduct).Create(&product).Error; err != nil {
+	var images, categories []interface{}
+
+	txn := r.db.Begin()
+
+	if err := txn.Omit("created_at").Table(config.TableNameProduct).Create(&product).Error; err != nil {
+		txn.Rollback()
 		return nil, err
 	}
+
+	for _, image := range product.ImageIDs {
+		images = append(images, domain.ProductImage{
+			ImageID:   image,
+			ProductID: product.ID,
+		})
+	}
+
+	for _, category := range product.CategoryIDs {
+		categories = append(categories, domain.CategoryProduct{
+			CategoryID: category,
+			ProductID:  product.ID,
+		})
+	}
+
+	if err := gormbulk.BulkInsert(txn.Table(config.TableNameProductImages), images, 3000); err != nil {
+		txn.Rollback()
+		return nil, err
+	}
+
+	if err := gormbulk.BulkInsert(txn.Table(config.TableNameCategoryProducts), categories, 3000); err != nil {
+		txn.Rollback()
+		return nil, err
+	}
+
+	txn.Commit()
 
 	return &product, nil
 }
@@ -50,7 +82,8 @@ func (r *Repository) Fetch(ctx context.Context, offset, limit int) ([]domain.Pro
 
 func (r *Repository) Update(ctx context.Context, product domain.Product) error {
 	var (
-		query = map[string]interface{}{
+		images, categories []interface{}
+		query              = map[string]interface{}{
 			"product_id": product.ID,
 		}
 	)
@@ -67,7 +100,31 @@ func (r *Repository) Update(ctx context.Context, product domain.Product) error {
 		return err
 	}
 
-	if err := txn.Table(config.TableNameProduct).Save(&product).Error; err != nil {
+	if err := txn.Table(config.TableNameProduct).Where(domain.Product{ID: product.ID}).Update(&product).Error; err != nil {
+		txn.Rollback()
+		return err
+	}
+
+	for _, image := range product.ImageIDs {
+		images = append(images, domain.ProductImage{
+			ImageID:   image,
+			ProductID: product.ID,
+		})
+	}
+
+	for _, category := range product.CategoryIDs {
+		categories = append(categories, domain.CategoryProduct{
+			CategoryID: category,
+			ProductID:  product.ID,
+		})
+	}
+
+	if err := gormbulk.BulkInsert(txn.Table(config.TableNameProductImages), images, 3000); err != nil {
+		txn.Rollback()
+		return err
+	}
+
+	if err := gormbulk.BulkInsert(txn.Table(config.TableNameCategoryProducts), categories, 3000); err != nil {
 		txn.Rollback()
 		return err
 	}

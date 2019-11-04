@@ -35,7 +35,7 @@ func UpdateHandler(service domain.ProductService) http.HandlerFunc {
 
 		log = log.WithField("product_id", id)
 
-		var reqBody domain.Product
+		var reqBody productRequest
 
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -62,9 +62,18 @@ func UpdateHandler(service domain.ProductService) http.HandlerFunc {
 			return
 		}
 
-		product, err := service.Update(r.Context(), id, reqBody)
+		prod := domain.Product{
+			ID:          reqBody.ID,
+			Name:        reqBody.Name,
+			Description: reqBody.Description,
+			Enable:      reqBody.Enable,
+			CategoryIDs: reqBody.Categories,
+			ImageIDs:    reqBody.Images,
+		}
+
+		product, err := service.Update(r.Context(), id, prod)
 		if err != nil {
-			log.WithError(err).WithField("body", reqBody).Errorln("Failed update product")
+			log.WithError(err).WithField("body", prod).Errorln("Failed update product")
 
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprint(w, formatter.FailResponse(err.Error()).Stringify())

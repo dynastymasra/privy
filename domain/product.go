@@ -4,11 +4,18 @@ import "context"
 
 type Product struct {
 	ID          int        `json:"id" gorm:"column:id;primary_key" validate:"omitempty"`
-	Name        string     `json:"name" gorm:"column:name;" validate:"required,max=255"`
+	Name        string     `json:"name" gorm:"c:name;" validate:"required,max=255"`
 	Description string     `json:"description" gorm:"column:description" validate:"required"`
 	Enable      bool       `json:"enable" gorm:"column:enable" validate:"required"`
 	Categories  []Category `json:"categories,omitempty" gorm:"many2many:category_products" validate:"-"`
+	CategoryIDs []int      `json:"-" gorm:"-" validate:"omitempty,dive"`
 	Images      []Image    `json:"images,omitempty" gorm:"many2many:product_images" validate:"-"`
+	ImageIDs    []int      `json:"-" gorm:"-" validate:"omitempty,dive"`
+}
+
+type ProductImage struct {
+	ProductID int `gorm:"omitempty;product_id"`
+	ImageID   int `gorm:"omitempty;image_id"`
 }
 
 func (Product) TableName() string {

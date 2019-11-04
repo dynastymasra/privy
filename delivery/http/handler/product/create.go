@@ -13,6 +13,15 @@ import (
 	validator "gopkg.in/go-playground/validator.v9"
 )
 
+type productRequest struct {
+	ID          int    `json:"id" validate:"omitempty"`
+	Name        string `json:"name" validate:"required,max=255"`
+	Description string `json:"description" validate:"required"`
+	Enable      bool   `json:"enable" validate:"required"`
+	Categories  []int  `json:"categories,omitempty" validate:"omitempty"`
+	Images      []int  `json:"images,omitempty" validate:"omitempty"`
+}
+
 func CreateHandler(service domain.ProductService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -21,7 +30,7 @@ func CreateHandler(service domain.ProductService) http.HandlerFunc {
 			config.RequestID: r.Context().Value(config.HeaderRequestID),
 		})
 
-		var reqBody domain.Product
+		var reqBody productRequest
 
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -48,9 +57,18 @@ func CreateHandler(service domain.ProductService) http.HandlerFunc {
 			return
 		}
 
-		product, err := service.Create(r.Context(), reqBody)
+		prod := domain.Product{
+			ID:          reqBody.ID,
+			Name:        reqBody.Name,
+			Description: reqBody.Description,
+			Enable:      reqBody.Enable,
+			CategoryIDs: reqBody.Categories,
+			ImageIDs:    reqBody.Images,
+		}
+
+		product, err := service.Create(r.Context(), prod)
 		if err != nil {
-			log.WithError(err).WithField("body", reqBody).Errorln("Failed create new product")
+			log.WithError(err).WithField("body", prod).Errorln("Failed create new product")
 
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprint(w, formatter.FailResponse(err.Error()).Stringify())
