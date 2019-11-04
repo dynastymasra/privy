@@ -135,30 +135,6 @@ func (r *Repository) Update(ctx context.Context, product domain.Product) error {
 }
 
 func (r *Repository) Delete(ctx context.Context, product domain.Product) error {
-	var (
-		query = map[string]interface{}{
-			"product_id": product.ID,
-		}
-	)
 
-	txn := r.db.Begin()
-
-	if err := txn.Table(config.TableNameProductImages).Where(query).Delete(nil).Error; err != nil {
-		txn.Rollback()
-		return err
-	}
-
-	if err := txn.Table(config.TableNameCategoryProducts).Where(query).Delete(nil).Error; err != nil {
-		txn.Rollback()
-		return err
-	}
-
-	if err := txn.Table(config.TableNameProduct).Delete(&product).Error; err != nil {
-		txn.Rollback()
-		return err
-	}
-
-	txn.Commit()
-
-	return nil
+	return r.db.Table(config.TableNameProduct).Delete(&product).Error
 }
