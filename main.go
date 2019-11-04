@@ -7,6 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/dynastymasra/privy/category"
+
 	"github.com/dynastymasra/privy/domain"
 
 	"github.com/dynastymasra/privy/product"
@@ -42,6 +44,9 @@ func main() {
 	productRepository := product.NewRepository(postgresDB)
 	productService := product.NewService(productRepository)
 
+	categoryRepository := category.NewRepository(postgresDB)
+	categoryService := category.NewService(categoryRepository)
+
 	clientApp := cli.NewApp()
 	clientApp.Name = config.ServiceName
 	clientApp.Version = config.Version
@@ -50,7 +55,10 @@ func main() {
 		server := &graceful.Server{
 			Timeout: 0,
 		}
-		go web.Run(server, postgresDB, web.ServiceInstance{Product: productService})
+		go web.Run(server, postgresDB, web.ServiceInstance{
+			Product:  productService,
+			Category: categoryService,
+		})
 		select {
 		case sig := <-stop:
 			<-server.StopChan()
@@ -93,13 +101,15 @@ func main() {
 			Name:        "migrate:seed",
 			Description: "Create up and down migration files with timestamp",
 			Action: func(c *cli.Context) error {
-				return productRepository.Create(context.Background(), domain.Product{
+				_, err := productRepository.Create(context.Background(), domain.Product{
 					Name:        fake.ProductName(),
 					Description: fake.Paragraph(),
 					Enable:      true,
-					Images:      []domain.Image{{ID: 1}},
-					Categories:  []domain.Category{{ID: 1}},
+					Images:      []domain.Image{{ID: 1, Name: fake.ProductName(), File: fake.Paragraphs(), Enable: true}},
+					Categories:  []domain.Category{{ID: 1, Name: fake.ProductName(), Enable: true}},
 				})
+
+				return err
 			},
 		},
 	}

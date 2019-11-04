@@ -16,7 +16,7 @@ func (Product) TableName() string {
 }
 
 type ProductRepository interface {
-	Create(context.Context, Product) error
+	Create(context.Context, Product) (*Product, error)
 	FindByID(context.Context, int) (*Product, error)
 	Fetch(context.Context, int, int) ([]Product, error)
 	Update(context.Context, Product) error

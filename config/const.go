@@ -5,6 +5,12 @@ const (
 	Version     = "0.1.0"
 	RequestID   = "request_id"
 
+	// Table Name
+	TableNameProduct          = "products"
+	TableNameCategory         = "categories"
+	TableNameProductImages    = "product_images"
+	TableNameCategoryProducts = "category_products"
+
 	envServerAddress = "SERVER_ADDRESS"
 
 	// Headers

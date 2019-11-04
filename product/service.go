@@ -22,12 +22,14 @@ func (s Service) Create(ctx context.Context, product domain.Product) (*domain.Pr
 		"product":        product,
 	})
 
-	if err := s.Repository.Create(ctx, product); err != nil {
+	res, err := s.Repository.Create(ctx, product)
+	if err != nil {
 		log.WithError(err).Errorln("Failed create new product")
+
 		return nil, err
 	}
 
-	return &product, nil
+	return res, nil
 }
 
 func (s Service) FindByID(ctx context.Context, id int) (*domain.Product, error) {

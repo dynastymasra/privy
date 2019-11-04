@@ -3,6 +3,8 @@ package web
 import (
 	"net/http"
 
+	"github.com/dynastymasra/privy/category"
+
 	"github.com/dynastymasra/privy/product"
 
 	"github.com/jinzhu/gorm"
@@ -14,7 +16,8 @@ import (
 )
 
 type ServiceInstance struct {
-	Product product.Service
+	Product  product.Service
+	Category category.Service
 }
 
 func Run(server *graceful.Server, db *gorm.DB, service ServiceInstance) {
