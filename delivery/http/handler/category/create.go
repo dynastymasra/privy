@@ -13,6 +13,12 @@ import (
 	validator "gopkg.in/go-playground/validator.v9"
 )
 
+type categoryRequest struct {
+	Name       string `json:"name" validate:"required,max=255"`
+	Enable     bool   `json:"enable" validate:"omitempty"`
+	ProductIDs []int  `json:"products,omitempty" validate:"omitempty"`
+}
+
 func CreateHandler(service domain.CategoryService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -21,7 +27,7 @@ func CreateHandler(service domain.CategoryService) http.HandlerFunc {
 			config.RequestID: r.Context().Value(config.HeaderRequestID),
 		})
 
-		var reqBody domain.Category
+		var reqBody categoryRequest
 
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -48,7 +54,13 @@ func CreateHandler(service domain.CategoryService) http.HandlerFunc {
 			return
 		}
 
-		category, err := service.Create(r.Context(), reqBody)
+		cat := domain.Category{
+			Name:       reqBody.Name,
+			Enable:     reqBody.Enable,
+			ProductIDs: reqBody.ProductIDs,
+		}
+
+		category, err := service.Create(r.Context(), cat)
 		if err != nil {
 			log.WithError(err).WithField("body", reqBody).Errorln("Failed create new category")
 

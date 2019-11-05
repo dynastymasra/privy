@@ -83,7 +83,7 @@ func (r *Repository) Update(ctx context.Context, product domain.Product) error {
 		}
 	)
 
-	if notFound := r.db.Table(config.TableNameProduct).First(&product).RecordNotFound(); notFound {
+	if notFound := r.db.Table(config.TableNameProduct).First(&domain.Product{ID: product.ID}).RecordNotFound(); notFound {
 		return gorm.ErrRecordNotFound
 	}
 
@@ -99,7 +99,7 @@ func (r *Repository) Update(ctx context.Context, product domain.Product) error {
 		return err
 	}
 
-	if err := txn.Table(config.TableNameProduct).Where(domain.Product{ID: product.ID}).Update(&product).Error; err != nil {
+	if err := txn.Table(config.TableNameProduct).Save(&product).Error; err != nil {
 		txn.Rollback()
 		return err
 	}

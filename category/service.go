@@ -29,7 +29,13 @@ func (s Service) Create(ctx context.Context, category domain.Category) (*domain.
 		return nil, err
 	}
 
-	return res, nil
+	result, err := s.Repository.FindByID(ctx, res.ID)
+	if err != nil {
+		log.WithError(err).Errorln("Failed get category by id")
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (s Service) FindByID(ctx context.Context, id int) (*domain.Category, error) {
@@ -70,19 +76,19 @@ func (s Service) Update(ctx context.Context, id int, category domain.Category) (
 		"id":             id,
 	})
 
-	cat, err := s.Repository.FindByID(ctx, id)
+	category.ID = id
+	if err := s.Repository.Update(ctx, category); err != nil {
+		log.WithError(err).Errorln("Failed update category")
+		return nil, err
+	}
+
+	result, err := s.Repository.FindByID(ctx, id)
 	if err != nil {
 		log.WithError(err).Errorln("Failed get category by id")
 		return nil, err
 	}
 
-	category.ID = id
-	if err := s.Repository.Update(ctx, category); err != nil {
-		log.WithField("before", cat).WithError(err).Errorln("Failed update category")
-		return nil, err
-	}
-
-	return &category, nil
+	return result, nil
 }
 
 func (s Service) Delete(ctx context.Context, id int) error {

@@ -35,7 +35,7 @@ func UpdateHandler(service domain.CategoryService) http.HandlerFunc {
 
 		log = log.WithField("category_id", id)
 
-		var reqBody domain.Category
+		var reqBody categoryRequest
 
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -62,7 +62,14 @@ func UpdateHandler(service domain.CategoryService) http.HandlerFunc {
 			return
 		}
 
-		category, err := service.Update(r.Context(), id, reqBody)
+		cat := domain.Category{
+			ID:         id,
+			Name:       reqBody.Name,
+			Enable:     reqBody.Enable,
+			ProductIDs: reqBody.ProductIDs,
+		}
+
+		category, err := service.Update(r.Context(), id, cat)
 		if err != nil {
 			log.WithError(err).WithField("body", reqBody).Errorln("Failed update category")
 

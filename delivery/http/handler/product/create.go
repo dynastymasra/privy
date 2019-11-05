@@ -17,7 +17,7 @@ type productRequest struct {
 	ID          int    `json:"id" validate:"omitempty"`
 	Name        string `json:"name" validate:"required,max=255"`
 	Description string `json:"description" validate:"required"`
-	Enable      bool   `json:"enable" validate:"required"`
+	Enable      bool   `json:"enable" validate:"omitempty"`
 	Categories  []int  `json:"categories,omitempty" validate:"omitempty"`
 	Images      []int  `json:"images,omitempty" validate:"omitempty"`
 }
