@@ -34,7 +34,8 @@ func (s *ServiceSuite) SetupTest() {
 }
 
 func (s *ServiceSuite) Test_Create_Success() {
-	s.productRepo.On("Create", context.Background()).Return(&domain.Product{}, nil)
+	s.productRepo.On("Create", context.Background()).Return(&domain.Product{ID: 1}, nil)
+	s.productRepo.On("FindByID", context.Background(), 1).Return(&domain.Product{}, nil)
 
 	product, err := s.productService.Create(context.Background(), domain.Product{})
 
@@ -44,6 +45,16 @@ func (s *ServiceSuite) Test_Create_Success() {
 
 func (s *ServiceSuite) Test_Create_Failed() {
 	s.productRepo.On("Create", context.Background()).Return((*domain.Product)(nil), assert.AnError)
+
+	product, err := s.productService.Create(context.Background(), domain.Product{})
+
+	assert.Nil(s.T(), product)
+	assert.Error(s.T(), err)
+}
+
+func (s *ServiceSuite) Test_Create_Failed_Find() {
+	s.productRepo.On("Create", context.Background()).Return(&domain.Product{ID: 1}, nil)
+	s.productRepo.On("FindByID", context.Background(), 1).Return((*domain.Product)(nil), assert.AnError)
 
 	product, err := s.productService.Create(context.Background(), domain.Product{})
 
@@ -99,6 +110,7 @@ func (s *ServiceSuite) Test_Update_Success() {
 }
 
 func (s *ServiceSuite) Test_Update_Failed_FindByID() {
+	s.productRepo.On("Update", context.Background(), domain.Product{ID: 1}).Return(nil)
 	s.productRepo.On("FindByID", context.Background(), 1).Return((*domain.Product)(nil), assert.AnError)
 
 	product, err := s.productService.Update(context.Background(), 1, domain.Product{})
@@ -108,7 +120,6 @@ func (s *ServiceSuite) Test_Update_Failed_FindByID() {
 }
 
 func (s *ServiceSuite) Test_Update_Failed_Update() {
-	s.productRepo.On("FindByID", context.Background(), 1).Return(&domain.Product{ID: 1}, nil)
 	s.productRepo.On("Update", context.Background(), domain.Product{ID: 1}).Return(assert.AnError)
 
 	product, err := s.productService.Update(context.Background(), 1, domain.Product{})

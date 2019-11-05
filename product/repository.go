@@ -58,14 +58,9 @@ func (r *Repository) Create(ctx context.Context, product domain.Product) (*domai
 }
 
 func (r *Repository) FindByID(ctx context.Context, id int) (*domain.Product, error) {
-	var (
-		result domain.Product
-		query  = domain.Product{
-			ID: id,
-		}
-	)
+	result := domain.Product{ID: id}
 
-	if err := r.db.Table(config.TableNameProduct).Where(query).Preload("Categories").Preload("Images").First(&result).Error; err != nil {
+	if err := r.db.Table(config.TableNameProduct).Preload("Categories").Preload("Images").First(&result).Error; err != nil {
 		return nil, err
 	}
 
@@ -87,6 +82,10 @@ func (r *Repository) Update(ctx context.Context, product domain.Product) error {
 			"product_id": product.ID,
 		}
 	)
+
+	if notFound := r.db.Table(config.TableNameProduct).First(&product).RecordNotFound(); notFound {
+		return gorm.ErrRecordNotFound
+	}
 
 	txn := r.db.Begin()
 
@@ -135,6 +134,9 @@ func (r *Repository) Update(ctx context.Context, product domain.Product) error {
 }
 
 func (r *Repository) Delete(ctx context.Context, product domain.Product) error {
+	if notFound := r.db.Table(config.TableNameProduct).First(&product).RecordNotFound(); notFound {
+		return gorm.ErrRecordNotFound
+	}
 
 	return r.db.Table(config.TableNameProduct).Delete(&product).Error
 }

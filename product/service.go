@@ -76,15 +76,9 @@ func (s Service) Update(ctx context.Context, id int, product domain.Product) (*d
 		"id":             id,
 	})
 
-	prod, err := s.Repository.FindByID(ctx, id)
-	if err != nil {
-		log.WithError(err).Errorln("Failed get product by id")
-		return nil, err
-	}
-
 	product.ID = id
 	if err := s.Repository.Update(ctx, product); err != nil {
-		log.WithField("before", prod).WithError(err).Errorln("Failed update product")
+		log.WithError(err).Errorln("Failed update product")
 		return nil, err
 	}
 

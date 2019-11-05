@@ -3,6 +3,7 @@ module github.com/dynastymasra/privy
 go 1.13
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.3.3
 	github.com/Microsoft/go-winio v0.4.14 // indirect
 	github.com/cheekybits/is v0.0.0-20150225183255-68e9c0620927 // indirect
 	github.com/corpix/uarand v0.1.1 // indirect

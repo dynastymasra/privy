@@ -5,6 +5,8 @@ import (
 	"log"
 	"testing"
 
+	"github.com/jinzhu/gorm"
+
 	"github.com/dynastymasra/privy/domain"
 	"github.com/icrowley/fake"
 	"github.com/stretchr/testify/assert"
@@ -62,6 +64,24 @@ func (p *RepositorySuite) Test_Create_Success() {
 	assert.NoError(p.T(), err)
 }
 
+func (p *RepositorySuite) Test_Create_Failed_Image() {
+	prod := genProduct()
+	prod.ImageIDs = []int{1000000000000}
+	res, err := p.Repository.Create(context.Background(), prod)
+
+	assert.Nil(p.T(), res)
+	assert.Error(p.T(), err)
+}
+
+func (p *RepositorySuite) Test_Create_Failed_Category() {
+	prod := genProduct()
+	prod.CategoryIDs = []int{1000000000000}
+	res, err := p.Repository.Create(context.Background(), prod)
+
+	assert.Nil(p.T(), res)
+	assert.Error(p.T(), err)
+}
+
 func (p *RepositorySuite) Test_Create_Failed() {
 	testProd := genProduct()
 	testProd.Name = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
@@ -112,12 +132,32 @@ func (p *RepositorySuite) Test_Update_Success() {
 	assert.NoError(p.T(), err)
 }
 
-func (p *RepositorySuite) Test_Update_Failed() {
+func (p *RepositorySuite) Test_Update_Failed_NotFound() {
+
+	err := p.Repository.Update(context.Background(), domain.Product{ID: 10000000000})
+
+	assert.Error(p.T(), err)
+}
+
+func (p *RepositorySuite) Test_Update_Failed_Image() {
 	prod := genProduct()
 
 	res, _ := p.Repository.Create(context.Background(), prod)
 
-	res.Name = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+	res.Name = "Update"
+	res.ImageIDs = []int{100000000000}
+	err := p.Repository.Update(context.Background(), *res)
+
+	assert.Error(p.T(), err)
+}
+
+func (p *RepositorySuite) Test_Update_Failed_Category() {
+	prod := genProduct()
+
+	res, _ := p.Repository.Create(context.Background(), prod)
+
+	res.Name = "Update"
+	res.CategoryIDs = []int{100000000000}
 	err := p.Repository.Update(context.Background(), *res)
 
 	assert.Error(p.T(), err)
@@ -131,4 +171,11 @@ func (p *RepositorySuite) Test_Delete_Success() {
 	err := p.Repository.Delete(context.Background(), *res)
 
 	assert.NoError(p.T(), err)
+}
+
+func (p *RepositorySuite) Test_Delete_Failed() {
+	err := p.Repository.Delete(context.Background(), domain.Product{ID: 10000000001})
+
+	assert.Error(p.T(), err)
+	assert.EqualError(p.T(), err, gorm.ErrRecordNotFound.Error())
 }
