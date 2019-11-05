@@ -5,8 +5,6 @@ import (
 	"log"
 	"testing"
 
-	"github.com/jinzhu/gorm"
-
 	"github.com/dynastymasra/privy/domain"
 	"github.com/icrowley/fake"
 	"github.com/stretchr/testify/assert"
@@ -171,11 +169,4 @@ func (p *RepositorySuite) Test_Delete_Success() {
 	err := p.Repository.Delete(context.Background(), *res)
 
 	assert.NoError(p.T(), err)
-}
-
-func (p *RepositorySuite) Test_Delete_Failed() {
-	err := p.Repository.Delete(context.Background(), domain.Product{ID: 10000000001})
-
-	assert.Error(p.T(), err)
-	assert.EqualError(p.T(), err, gorm.ErrRecordNotFound.Error())
 }

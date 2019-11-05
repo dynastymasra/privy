@@ -3,11 +3,12 @@ package domain
 import "context"
 
 type Image struct {
-	ID       int       `json:"id,omitempty" gorm:"column:id;primary_key" validate:"omitempty"`
-	Name     string    `json:"name" gorm:"column:name;" validate:"required,max=255"`
-	File     string    `json:"file" gorm:"column:file;" validate:"required"`
-	Enable   bool      `json:"enable" gorm:"column:enable;" validate:"required"`
-	Products []Product `json:"products,omitempty" gorm:"many2many:product_images" validate:"-"`
+	ID         int       `json:"id,omitempty" gorm:"column:id;primary_key" validate:"omitempty"`
+	Name       string    `json:"name" gorm:"column:name;" validate:"required,max=255"`
+	File       string    `json:"file" gorm:"column:file;" validate:"required"`
+	Enable     bool      `json:"enable" gorm:"column:enable;" validate:"omitempty"`
+	Products   []Product `json:"products,omitempty" gorm:"many2many:product_images" validate:"-"`
+	ProductIDs []int     `json:"-" gorm:"-" validate:"omitempty"`
 }
 
 func (Image) TableName() string {

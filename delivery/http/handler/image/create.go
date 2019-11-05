@@ -13,6 +13,13 @@ import (
 	validator "gopkg.in/go-playground/validator.v9"
 )
 
+type imageRequest struct {
+	Name       string `json:"name" validate:"required,max=255"`
+	File       string `json:"file" validate:"required"`
+	Enable     bool   `json:"enable" validate:"omitempty"`
+	ProductIDs []int  `json:"products,omitempty" validate:"omitempty"`
+}
+
 func CreateHandler(service domain.ImageService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -21,7 +28,7 @@ func CreateHandler(service domain.ImageService) http.HandlerFunc {
 			config.RequestID: r.Context().Value(config.HeaderRequestID),
 		})
 
-		var reqBody domain.Image
+		var reqBody imageRequest
 
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -48,7 +55,14 @@ func CreateHandler(service domain.ImageService) http.HandlerFunc {
 			return
 		}
 
-		image, err := service.Create(r.Context(), reqBody)
+		img := domain.Image{
+			Name:       reqBody.Name,
+			File:       reqBody.File,
+			Enable:     reqBody.Enable,
+			ProductIDs: reqBody.ProductIDs,
+		}
+
+		image, err := service.Create(r.Context(), img)
 		if err != nil {
 			log.WithError(err).WithField("body", reqBody).Errorln("Failed create new image")
 

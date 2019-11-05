@@ -35,7 +35,7 @@ func UpdateHandler(service domain.ImageService) http.HandlerFunc {
 
 		log = log.WithField("image_id", id)
 
-		var reqBody domain.Image
+		var reqBody imageRequest
 
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -62,7 +62,15 @@ func UpdateHandler(service domain.ImageService) http.HandlerFunc {
 			return
 		}
 
-		image, err := service.Update(r.Context(), id, reqBody)
+		img := domain.Image{
+			ID:         id,
+			Name:       reqBody.Name,
+			File:       reqBody.File,
+			Enable:     reqBody.Enable,
+			ProductIDs: reqBody.ProductIDs,
+		}
+
+		image, err := service.Update(r.Context(), id, img)
 		if err != nil {
 			log.WithError(err).WithField("body", reqBody).Errorln("Failed update image")
 

@@ -134,9 +134,6 @@ func (r *Repository) Update(ctx context.Context, product domain.Product) error {
 }
 
 func (r *Repository) Delete(ctx context.Context, product domain.Product) error {
-	if notFound := r.db.Table(config.TableNameProduct).First(&product).RecordNotFound(); notFound {
-		return gorm.ErrRecordNotFound
-	}
 
 	return r.db.Table(config.TableNameProduct).Delete(&product).Error
 }

@@ -106,9 +106,6 @@ func (r *Repository) Update(ctx context.Context, category domain.Category) error
 }
 
 func (r *Repository) Delete(ctx context.Context, category domain.Category) error {
-	if notFound := r.db.Table(config.TableNameCategory).First(&category).RecordNotFound(); notFound {
-		return gorm.ErrRecordNotFound
-	}
 
 	return r.db.Table(config.TableNameCategory).Delete(&category).Error
 }

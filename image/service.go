@@ -29,7 +29,13 @@ func (s Service) Create(ctx context.Context, image domain.Image) (*domain.Image,
 		return nil, err
 	}
 
-	return res, nil
+	result, err := s.Repository.FindByID(ctx, res.ID)
+	if err != nil {
+		log.WithError(err).Errorln("Failed get image by id")
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (s Service) FindByID(ctx context.Context, id int) (*domain.Image, error) {
@@ -70,19 +76,19 @@ func (s Service) Update(ctx context.Context, id int, image domain.Image) (*domai
 		"id":             id,
 	})
 
-	img, err := s.Repository.FindByID(ctx, id)
+	image.ID = id
+	if err := s.Repository.Update(ctx, image); err != nil {
+		log.WithError(err).Errorln("Failed update image")
+		return nil, err
+	}
+
+	result, err := s.Repository.FindByID(ctx, id)
 	if err != nil {
 		log.WithError(err).Errorln("Failed get image by id")
 		return nil, err
 	}
 
-	image.ID = id
-	if err := s.Repository.Update(ctx, image); err != nil {
-		log.WithField("before", img).WithError(err).Errorln("Failed update image")
-		return nil, err
-	}
-
-	return &image, nil
+	return result, nil
 }
 
 func (s Service) Delete(ctx context.Context, id int) error {
